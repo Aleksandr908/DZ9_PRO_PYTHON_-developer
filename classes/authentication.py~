@@ -1,0 +1,44 @@
+from classes.users import User, Customer, Admin
+
+class AuthenticationService:
+    """
+    Сервис для управления регистрацией и аутентификацией пользователей.
+    """
+    def __init__(self):
+        self.current_user = None
+
+    def register(self, user_class, username, email, password, *args):
+        """
+        Регистрация нового пользователя.
+        """
+        if any(user.username == username for user in User.users):
+            return "Ошибка: имя пользователя уже существует."
+        user_class(username, email, password, *args)
+        return f"Пользователь {username} зарегистрирован."
+
+    def login(self, username, password):
+        """
+        Аутентификация пользователя.
+        """
+        for user in User.users:
+            if user.username == username and user.check_password(user.password, password):
+                self.current_user = user
+                return f"Пользователь {username} вошел в систему."
+        return "Ошибка: неверное имя пользователя или пароль."
+
+    def logout(self):
+        """
+        Выход пользователя из системы.
+        """
+        if self.current_user:
+            self.current_user = None
+            return "Вы вышли из системы."
+        return "Ошибка: никто не вошел в систему."
+
+    def get_current_user(self):
+        """
+        Возвращает текущего вошедшего пользователя.
+        """
+        if self.current_user:
+            return self.current_user.get_details()
+        return "Ошибка: никто не вошел в систему."
